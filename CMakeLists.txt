@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.13)
 
+
 include(pico_sdk_import.cmake)
 project(HelloWorld C CXX ASM)
 
@@ -26,4 +27,4 @@ pico_enable_stdio_usb(HelloWorld 0)
 
 pico_add_extra_outputs(HelloWorld)
 
-target_link_libraries(HelloWorld pico_stdlib)
+target_link_libraries(HelloWorld pico_stdlib hardware_flash hardware_sync)
