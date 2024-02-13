@@ -1,0 +1,19 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "Debug Pico",
+        "cwd": "${workspaceRoot}",
+        "executable": "./build/HelloWorld.elf",
+        "request": "launch",
+        "type": "cortex-debug",
+        "servertype": "external",
+        "configFiles": ["${workspaceFolder}/openocd.cfg"],
+        "preLaunchTask": "build",
+        "gdbTarget": "localhost:3060",
+        "interface": "swd",
+        "svdFile": "${workspaceFolder}/rp2040.svd",
+        "postLaunchCommands": ["monitor reset"]
+      }
+    ]
+  }
