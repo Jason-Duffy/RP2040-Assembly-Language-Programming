@@ -24,8 +24,9 @@
 MEMORY
 {
     BOOT2 (rx) : ORIGIN = 0x10000000, LENGTH = 256
-    VECTOR_TABLE (rx) : ORIGIN = 0x10000100, LENGTH = 256 
-    FLASH(rx) : ORIGIN = 0x10000000 + 512, LENGTH = 2048k - 512
+    VECTOR_TABLE (rx) : ORIGIN = 0x10000100, LENGTH = 256
+    BOOT3 (rx) : ORIGIN = 0x10000200, LENGTH = 64k
+    FLASH(rx) : ORIGIN = 0x10000000 + 512 + 64K, LENGTH = 2048k - 64K - 512
     RAM(rwx) : ORIGIN =  0x20000000, LENGTH = 256k
     SCRATCH_X(rwx) : ORIGIN = 0x20040000, LENGTH = 4k
     SCRATCH_Y(rwx) : ORIGIN = 0x20041000, LENGTH = 4k
@@ -44,24 +45,32 @@ SECTIONS
     ASSERT(__boot2_end__ - __boot2_start__ == 256,
         "ERROR: Pico second stage bootloader must be 256 bytes in size")
 
-        .flash_begin : {
-        __flash_binary_start = .;
-    } > FLASH
-
     .vectors : {
         KEEP (*(.vectors))
         . = ALIGN(4);
     } > VECTOR_TABLE
 
+    .boot3 : {
+        __boot3_start__ = .;
+        KEEP (*(.boot3))
+        KEEP (*(.reset))
+        __boot3_end__ = .;
+    } > BOOT3
+
+    .flash_begin : {
+        __flash_binary_start = .;
+    } > FLASH
+
     .text : {
         __logical_binary_start = .;
-        KEEP (*(.vectors))
+        /* KEEP (*(.vectors)) */
         KEEP (*(.binary_info_header))
         __binary_info_header_end = .;
-        KEEP (*(.reset))
+        /* KEEP (*(.reset)) */
         /* TODO revisit this now memset/memcpy/float in ROM */
         /* bit of a hack right now to exclude all floating point and time critical (e.g. memset, memcpy) code from
          * FLASH ... we will include any thing excluded here in .data below by default */
+         KEEP(*(.text.main_program))
         *(.init)
         *(EXCLUDE_FILE(*libgcc.a: *libc.a:*lib_a-mem*.o *libm.a:) .text*)
         *(.fini)
