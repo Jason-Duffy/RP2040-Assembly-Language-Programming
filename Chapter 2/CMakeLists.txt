@@ -14,7 +14,7 @@ include_directories(${CMAKE_SOURCE_DIR})
 
 # Define your executable target before setting the linker script
 add_executable(HelloWorld
-  HelloWorld.S
+  main.S
 )
 
 # Now set the custom linker script
