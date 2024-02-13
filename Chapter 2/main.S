@@ -23,4 +23,4 @@ loop:
 		
 .data
 	       .align  4	@ necessary alignment
-helloworld: .asciz   "Hello World %d\n"
+helloworld: .asciz   "main_program: Hello World %d\n"
