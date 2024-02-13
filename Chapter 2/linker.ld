@@ -26,7 +26,9 @@ MEMORY
     BOOT2 (rx) : ORIGIN = 0x10000000, LENGTH = 256
     VECTOR_TABLE (rx) : ORIGIN = 0x10000100, LENGTH = 256
     BOOT3 (rx) : ORIGIN = 0x10000200, LENGTH = 64k
-    FLASH(rx) : ORIGIN = 0x10000000 + 512 + 64K, LENGTH = 2048k - 64K - 512
+    FLASH_A(rx) : ORIGIN = 0x10002200, LENGTH = 512k
+    FLASH_B(rx) : ORIGIN = 0x10082200, LENGTH = 512k
+    FLASH_C(rx) : ORIGIN = 0x10162200, LENGTH = 512k
     RAM(rwx) : ORIGIN =  0x20000000, LENGTH = 256k
     SCRATCH_X(rwx) : ORIGIN = 0x20040000, LENGTH = 4k
     SCRATCH_Y(rwx) : ORIGIN = 0x20041000, LENGTH = 4k
@@ -59,7 +61,7 @@ SECTIONS
 
     .flash_begin : {
         __flash_binary_start = .;
-    } > FLASH
+    } > FLASH_A
 
     .text : {
         __logical_binary_start = .;
@@ -89,25 +91,25 @@ SECTIONS
 
         *(.eh_frame*)
         . = ALIGN(4);
-    } > FLASH
+    } > FLASH_A
 
     .rodata : {
         *(EXCLUDE_FILE(*libgcc.a: *libc.a:*lib_a-mem*.o *libm.a:) .rodata*)
         . = ALIGN(4);
         *(SORT_BY_ALIGNMENT(SORT_BY_NAME(.flashdata*)))
         . = ALIGN(4);
-    } > FLASH
+    } > FLASH_A
 
     .ARM.extab :
     {
         *(.ARM.extab* .gnu.linkonce.armextab.*)
-    } > FLASH
+    } > FLASH_A
 
     __exidx_start = .;
     .ARM.exidx :
     {
         *(.ARM.exidx* .gnu.linkonce.armexidx.*)
-    } > FLASH
+    } > FLASH_A
     __exidx_end = .;
 
     /* Machine inspectable binary information */
@@ -117,7 +119,7 @@ SECTIONS
     {
         KEEP(*(.binary_info.keep.*))
         *(.binary_info.*)
-    } > FLASH
+    } > FLASH_A
     __binary_info_end = .;
     . = ALIGN(4);
 
@@ -173,7 +175,7 @@ SECTIONS
         . = ALIGN(4);
         /* All data end */
         __data_end__ = .;
-    } > RAM AT> FLASH
+    } > RAM AT> FLASH_A
     /* __etext is (for backwards compatibility) the name of the .data init source pointer (...) */
     __etext = LOADADDR(.data);
 
@@ -188,7 +190,7 @@ SECTIONS
         *(.scratch_x.*)
         . = ALIGN(4);
         __scratch_x_end__ = .;
-    } > SCRATCH_X AT > FLASH
+    } > SCRATCH_X AT > FLASH_A
     __scratch_x_source__ = LOADADDR(.scratch_x);
 
     .scratch_y : {
@@ -196,7 +198,7 @@ SECTIONS
         *(.scratch_y.*)
         . = ALIGN(4);
         __scratch_y_end__ = .;
-    } > SCRATCH_Y AT > FLASH
+    } > SCRATCH_Y AT > FLASH_A
     __scratch_y_source__ = LOADADDR(.scratch_y);
 
     .bss  : {
@@ -236,7 +238,21 @@ SECTIONS
 
     .flash_end : {
         PROVIDE(__flash_binary_end = .);
-    } > FLASH
+    } > FLASH_A
+
+    .flash_b : {
+        __flash_b_start__ = .;
+        KEEP(*(.flash_b*)) /* Placeholder for update binary; not executed */
+        . = ORIGIN(FLASH_B) + LENGTH(FLASH_B);
+        __flash_b_end__ = .;
+    } > FLASH_B
+
+    .flash_c : {
+        __flash_c_start__ = .;
+        KEEP(*(.flash_c*)) /* Placeholder for fallback/main code copy; not executed */
+        . = ORIGIN(FLASH_C) + LENGTH(FLASH_C);
+        __flash_c_end__ = .;
+    } > FLASH_C
 
     /* stack limit is poorly named, but historically is maximum heap ptr */
     __StackLimit = ORIGIN(RAM) + LENGTH(RAM);
