@@ -23,7 +23,8 @@
 
 MEMORY
 {
-    FLASH(rx) : ORIGIN = 0x10000000, LENGTH = 2048k
+    BOOT2 (rx) : ORIGIN = 0x10000000, LENGTH = 256 
+    FLASH(rx) : ORIGIN = 0x10000000 + 256, LENGTH = 2048k - 256
     RAM(rwx) : ORIGIN =  0x20000000, LENGTH = 256k
     SCRATCH_X(rwx) : ORIGIN = 0x20040000, LENGTH = 4k
     SCRATCH_Y(rwx) : ORIGIN = 0x20041000, LENGTH = 4k
@@ -38,9 +39,7 @@ SECTIONS
        in the Raspberry Pi Pico SDK
     */
 
-    .flash_begin : {
-        __flash_binary_start = .;
-    } > FLASH
+
 
     .boot2 : {
         __boot2_start__ = .;
@@ -57,6 +56,10 @@ SECTIONS
        This can be used to transfer control back to the bootrom on debugger
        launches only, to perform proper flash setup.
     */
+
+        .flash_begin : {
+        __flash_binary_start = .;
+    } > FLASH
 
     .text : {
         __logical_binary_start = .;
